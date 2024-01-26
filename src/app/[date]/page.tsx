@@ -13,8 +13,8 @@ export default function Page({params}: {params: {date: string}}) {
 
     return <Canvas className="w-full h-full">
         <Float>
-            <Html center transform as="h1" className={caveat.className}>
-                I didn't make a shader on { params.date }
+            <Html center transform as="h1" className={caveat.className} scale={0.25}>
+                <div style={{ transform: 'scale(4)' }}>I didn't make a shader on {params.date}</div>
             </Html>
         </Float>
     </Canvas>
