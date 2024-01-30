@@ -20,7 +20,7 @@ export default function DatePicker() {
 
     React.useEffect(() => {
         if (date) {
-            router.push(`/${format(date, "yyyy-MM-dd")}`)
+            router.push(`/${format(date, "yyyy/MM/dd")}`)
         }
     }, [date])
 

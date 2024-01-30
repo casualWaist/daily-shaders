@@ -12,7 +12,7 @@ float smin(float a, float b, float k) {
 
 
 float map(vec3 p) {
-    vec3 spherePos = vec3(sin(time) * 3., 0, 0);
+    vec3 spherePos = vec3(sin(time) * 3., 0., 0.);
     float sphere = sdSphere(p - spherePos, 1.);
     float sphere2 = sdSphere(p + spherePos, 1.);
     return smin(sphere, sphere2, 2.);
