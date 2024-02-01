@@ -14,8 +14,9 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const MarchReps = shaderMaterial({
+const VertRorschach = shaderMaterial({
         time: 0,
+        color: new THREE.Color(0.5, 0.0, 0.025),
         // this ternary is necessary because SSR
         resolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
     },
@@ -23,36 +24,36 @@ const MarchReps = shaderMaterial({
     fragment,
 )
 
-type Props = MaterialNode<any, any> & { time?: number, resolution?: THREE.Vector2 }
-extend({ MarchReps })
+type Props = MaterialNode<any, any> & { time?: number, color?: THREE.Color, resolution?: THREE.Vector2 }
+extend({ VertRorschach })
 declare module "@react-three/fiber" {
     interface ThreeElements {
-        marchReps: MaterialNode<any, any>
+        vertRorschach: MaterialNode<any, any>
     }
 }
 
 const Shader = forwardRef(({ ...props }: Props, ref) => {
-    const localRef = useRef<THREE.ShaderMaterial & {time: number, resolution?: THREE.Vector2}>(null!)
+    const localRef = useRef<THREE.ShaderMaterial & {time: number, color:THREE.Color, resolution?: THREE.Vector2}>(null!)
 
     useImperativeHandle(ref, () => localRef.current)
 
     useFrame((_, delta) => (localRef.current.time += delta))
-    return <marchReps key={MarchReps.key} ref={localRef} {...props} attach='material' />
+    return <vertRorschach key={VertRorschach.key} ref={localRef} {...props} attach='material' />
 })
 Shader.displayName = 'Shader'
 
 export default function Page() {
     return <Canvas>
         <mesh position={[0, 1, 0]}>
-            <planeGeometry args={[3, 3, 1, 1]} />
+            <sphereGeometry args={[1.5, 128, 128]} />
             {/* @ts-ignore */}
-            <Shader time={0}/>
+            <Shader time={0} color={'hotpink'}/>
         </mesh>
         <Float>
             <Html position={[0, -1.5, 1]}
                   center transform as="h1" className={caveat.className} scale={0.25}>
                 <div style={{ transform: 'scale(4)' }}>
-                    I don't have<br/>time for a name
+                    2001: A Space Cross
                 </div>
             </Html>
         </Float>
