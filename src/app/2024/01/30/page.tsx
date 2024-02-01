@@ -14,7 +14,7 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const MarchReps = shaderMaterial({
+const MarchRainbow = shaderMaterial({
         time: 0,
         // this ternary is necessary because SSR
         resolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
@@ -23,11 +23,11 @@ const MarchReps = shaderMaterial({
     fragment,
 )
 
-type Props = THREE.ShaderMaterial & { time?: number, resolution?: THREE.Vector2 }
-extend({ MarchReps })
+type Props = MaterialNode<any, any> & { time?: number, resolution?: THREE.Vector2 }
+extend({ MarchRainbow })
 declare module "@react-three/fiber" {
     interface ThreeElements {
-        marchReps: MaterialNode<Props, typeof MarchReps>;
+        marchRainbow: MaterialNode<any, any>;
     }
 }
 
@@ -37,7 +37,7 @@ const Shader = forwardRef(({ ...props }: Props, ref) => {
     useImperativeHandle(ref, () => localRef.current)
 
     useFrame((_, delta) => (localRef.current.time += delta))
-    return <marchReps key={MarchReps.key} ref={localRef} {...props} attach='material' />
+    return <marchRainbow key={MarchRainbow.key} ref={localRef} {...props} attach='material' />
 })
 Shader.displayName = 'Shader'
 

@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client'
 
-import { Canvas } from "@react-three/fiber"
+import {Canvas, MaterialNode} from "@react-three/fiber"
 import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import {Float, Html, shaderMaterial} from '@react-three/drei'
@@ -26,7 +26,7 @@ const MarchBalls = shaderMaterial({
 
 extend({ MarchBalls })
 
-type Props = typeof THREE.ShaderMaterial & { time?: number, resolution?: THREE.Vector2 }
+type Props = MaterialNode<any, any> & { time?: number, resolution?: THREE.Vector2 }
 
 const Shader = forwardRef(({ ...props }: Props, ref) => {
     const localRef = useRef<THREE.ShaderMaterial & {time?: number, resolution?: THREE.Vector2}>(null!)

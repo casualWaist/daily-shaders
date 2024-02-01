@@ -9,12 +9,15 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-export default function Page({params}: {params: {date: string}}) {
+export default function Page({params}: {params: {year: string, day: string, month: string}}) {
 
     return <Canvas className="w-full h-full">
         <Float>
             <Html center transform as="h1" className={caveat.className} scale={0.25}>
-                <div style={{ transform: 'scale(4)' }}>I didn't make a shader on {params.date}</div>
+                <div style={{ transform: 'scale(4)', textAlign: 'center' }}>
+                    I didn't make a shader on<br/>
+                    {params.month + '-' + params.day + '-' + params.year}
+                </div>
             </Html>
         </Float>
     </Canvas>
