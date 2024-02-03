@@ -1,11 +1,10 @@
+uniform float time;
+uniform vec3 color;
+uniform vec2 resolution;
 varying vec2 vUv;
 varying vec3 vPosition;
 varying float vNoise;
-uniform vec2 resolution;
-uniform float time;
-// Classic Perlin 3D Noise
-// by Stefan Gustavson
-//
+//#pragma glslify: random = require(glsl-random)
 vec4 permute(vec4 x)
 {
     return mod(((x*34.0)+1.0)*x, 289.0);
@@ -17,6 +16,15 @@ vec4 taylorInvSqrt(vec4 r)
 vec3 fade(vec3 t)
 {
     return t*t*t*(t*(t*6.0-15.0)+10.0);
+}
+
+vec3 palette( float t ) {
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263,0.416,0.557);
+
+    return a + b*cos( 6.28318*(c*t+d) );
 }
 
 float cnoise(vec3 P){
@@ -87,16 +95,21 @@ float cnoise(vec3 P){
     return 2.2 * n_xyz;
 }
 
+//https://www.shadertoy.com/view/mtyGWy
 void main() {
-    vUv = uv * 2.0 - 1.0;
-    float disToCenterX = length(position.x);
-    float disToCenterY = length(position.y);
-    float disToCenterZ = length(position.z);
-    vPosition = vec3(disToCenterX, disToCenterY, disToCenterZ);
-    float r = cnoise(vec3(time, time - 0.2, time * 0.8));
-    vNoise = r;
-    float x = position.x - r * disToCenterX;
-    float y = position.y - r * disToCenterY;
-    float z = position.z - r * disToCenterZ;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, z, 1.0);
+    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution) / resolution.y;
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
+
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
+
+        float d = length(uv) * exp(length(uv0) * cnoise(vec3(uv0, time)));
+
+        vec3 col = palette(length(uv0) + i*.4 + time*.4);
+
+        finalColor += col * d;
+    }
+
+    gl_FragColor = vec4(finalColor, finalColor.r * finalColor.g * finalColor.b + 0.25);
 }
