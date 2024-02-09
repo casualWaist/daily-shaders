@@ -18,7 +18,7 @@ export default function RootLayout({
         children: React.ReactNode
     }>) {
     return <html lang="en" style={{ width: '100%', height: '100%' }}>
-        <body style={{ width: '100%', height: '100%' }} className={inter.className}>
+        <body style={{ width: '100%', height: '100%', pointerEvents: 'none' }} className={inter.className}>
             <nav>
                 <DatePicker/>
             </nav>
