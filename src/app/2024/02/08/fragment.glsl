@@ -7,7 +7,7 @@ uniform vec2 uMouse;
 varying vec2 vUv;
 varying vec3 vPosition;
 
-
+// #ring #ringAroundPointer #circle #circleAroundPointer
 void main(){
     float distance = distance(gl_FragCoord.xy / uResolution, uMouse);
     float radius = 0.025;

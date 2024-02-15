@@ -30,6 +30,7 @@ for (let i = 0; i < size * size; i++) {
     }
 }
 
+// #particleTexture #dataParticles #particles
 const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat, THREE.FloatType)
 
 const count = size ** 2

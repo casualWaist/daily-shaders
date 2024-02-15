@@ -62,6 +62,7 @@ vec3 GetRayDir(vec2 uv, vec3 p, vec3 l, float z) {
     return normalize(i);
 }
 
+// #raymarchCube #raymarchBox
 void main(){
     vec2 uv = (gl_FragCoord.xy-resolution.xy)/resolution.y;
     vec2 m = resolution.xy * sin(time * 0.0001);

@@ -42,6 +42,7 @@ const Shader = forwardRef(({ ...props }: Props, ref) => {
     let vec = new THREE.Vector3()
     let pos = new THREE.Vector3()
 
+    // #transformMouseCoordinates #pointerCoordinates #mouseCoordinates
     const mouseMove = (e: MouseEvent) => {
         vec.set(
             ( e.clientX / window.innerWidth ) * 2 - 1,

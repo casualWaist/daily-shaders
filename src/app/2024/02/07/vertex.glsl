@@ -3,6 +3,8 @@ varying vec3 vPosition;
 uniform vec2 resolution;
 uniform sampler2D uPositions;
 uniform float time;
+
+// #particlesInGeometry #vertexShape
 void main() {
     vUv = uv;
     vec4 pos = texture2D(uPositions, uv);

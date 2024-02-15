@@ -12,10 +12,21 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { useRouter } from "next/navigation"
+import {usePathname, useRouter} from "next/navigation"
 
 export default function DatePicker() {
-    const [date, setDate] = React.useState<Date>(new Date())
+    const path = usePathname()
+    const [year, month, day] = path.split("/").slice(1)
+    const yearInt = parseInt(year, 10)
+    const monthInt = parseInt(month, 10)
+    const dayInt = parseInt(day, 10)
+    let goodDay = false
+    if (yearInt && monthInt && dayInt) {
+        goodDay = true
+    }
+    const [date, setDate] = React.useState<Date>(
+        goodDay ? new Date(yearInt, monthInt - 1, dayInt) : new Date()
+    )
     const router = useRouter()
 
     React.useEffect(() => {

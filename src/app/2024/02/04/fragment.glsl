@@ -26,6 +26,7 @@ vec3 palette( float t ) {
     return a + b*cos( 6.28318*(c*t+d) );
 }
 
+// #noise
 float cnoise(vec3 P){
     vec3 Pi0 = floor(P); // Integer part for indexing
     vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
@@ -94,7 +95,7 @@ float cnoise(vec3 P){
     return 2.2 * n_xyz;
 }
 
-//https://www.shadertoy.com/view/mtyGWy
+//https://www.shadertoy.com/view/mtyGWy #shimmer
 void main() {
     vec2 uv = (gl_FragCoord.xy * 2.0 - resolution) / resolution.y;
     vec2 uv0 = uv;

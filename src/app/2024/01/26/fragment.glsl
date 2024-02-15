@@ -27,7 +27,7 @@ void main() {
 
     float t = 0.; // total distance travelled
 
-    // Raymarching
+    // #Raymarching #basicRaymarching #raymarchingStarter
     for (int i = 0; i < 80; i++) {
         vec3 p = ro + rd * t;     // position along the ray
 
