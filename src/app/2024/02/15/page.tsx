@@ -3,7 +3,7 @@
 import {Canvas, MaterialNode} from "@react-three/fiber"
 import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
-import {Float, Html, OrbitControls, shaderMaterial} from '@react-three/drei'
+import {Float, Html, OrbitControls, shaderMaterial, useTexture} from '@react-three/drei'
 import vertex from './vertex.glsl'
 import fragment from './fragment.glsl'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
@@ -17,7 +17,7 @@ const caveat = Caveat({
 const TextureMarchImp = shaderMaterial({
         uTime: 0,
         vLastPos: new THREE.Vector3(1, 2, 3),
-        uTexture: new THREE.TextureLoader().load('/Fire.png'),
+        uTexture: new THREE.Texture(),
         uColor: new THREE.Color(0.5, 0.0, 0.025),
         // this ternary is necessary because SSR
         uResolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
@@ -46,11 +46,7 @@ TextureMarch.displayName = 'TextureMarch'
 
 export default function Page() {
     return <Canvas style={{ position: "absolute", top: "0", zIndex: "-1"}}>
-        <mesh position={[0, 1, 0]}>
-            <boxGeometry args={[2.5, 2.5, 2.5]}/>
-            {/* @ts-ignore */}
-            <TextureMarch uTime={0} uColor={'#ff3bfb'}/>
-        </mesh>
+        <Scene />
         <Float>
             <Html position={[0, -1.5, 1]}
                   center transform as="h1" className={caveat.className} scale={0.25}>
@@ -61,4 +57,12 @@ export default function Page() {
         </Float>
         <OrbitControls />
     </Canvas>
+}
+
+function Scene() {
+    const texture = useTexture('/Fire.png')
+    return <mesh position={[0, 1, 0]}>
+        <boxGeometry args={[2.5, 2.5, 2.5]}/>
+        <TextureMarch uTime={0} uTexture={texture} uColor={'#ff3bfb'}/>
+    </mesh>
 }
