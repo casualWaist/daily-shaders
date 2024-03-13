@@ -13,44 +13,40 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const HologramShaderImp = shaderMaterial({
+const HalfToneShaderImp = shaderMaterial({
     uTime: 0,
     uColor: new THREE.Color(0.5, 0.0, 0.025),
     uResolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
 }, vertex, fragment, (imp) => { if (imp) {
-    //imp.wireframe = true
-    imp.side = THREE.DoubleSide
-    imp.depthWrite = false
-    imp.blending = THREE.AdditiveBlending
 } })
 
-extend({ HologramShaderImp })
+extend({ HalfToneShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            hologramShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            halfToneShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type HologramShaderUniforms = {
+export type HalfToneShaderUniforms = {
     uTime: number
     uResolution?: THREE.Vector2
     uColor?: THREE.Color
 }
 
-type Props = HologramShaderUniforms & MaterialProps
+type Props = HalfToneShaderUniforms & MaterialProps
 
-const HologramShader = forwardRef<HologramShaderUniforms, Props>(({...props}: Props, ref) => {
+const HalfToneShader = forwardRef<HalfToneShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     useImperativeHandle(ref, () => localRef.current)
     useFrame((state, delta) => {
         localRef.current.uTime += delta
     })
-    return <hologramShaderImp key={HologramShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <halfToneShaderImp key={HalfToneShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-HologramShader.displayName = 'HologramShader'
+HalfToneShader.displayName = 'HalfToneShader'
 
 export default function Page() {
 
@@ -65,7 +61,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', color: "white"}}>
-                    HollowMan
+                    Half Tone Alyx
                 </div>
             </Html>
         </Float>
@@ -74,10 +70,10 @@ export default function Page() {
 }
 function Scene() {
     const faceRef = useRef<THREE.Mesh>(null!)
-    const faceShaderRef = useRef<HologramShaderUniforms>(null!)
+    const faceShaderRef = useRef<HalfToneShaderUniforms>(null!)
 
     return <mesh ref={faceRef}>
         <torusKnotGeometry args={[1.5, 0.5, 128]} />
-        <HologramShader ref={faceShaderRef} uTime={0} uColor={new THREE.Color(0.1, 0.4, 1)} transparent/>
+        <HalfToneShader ref={faceShaderRef} uTime={0} uColor={new THREE.Color(0.15, 0.2, 0.7)}/>
     </mesh>
 }
