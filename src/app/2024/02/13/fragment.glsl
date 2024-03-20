@@ -133,7 +133,7 @@ vec4 samplerFire (vec3 p, vec4 scale) {
 
     if(st.y <= 0.0 || st.y >= 1.0) return vec4(0.0);
 
-    return texture2D(uTexture, st);
+    return texture(uTexture, st);
 }
 
 vec3 localize(vec3 p) {

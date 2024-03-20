@@ -11,7 +11,7 @@ varying vec2 vUv;
 void main(){
 
     vec2 subUv = vec2(vUv.x * 0.5 + float(uIndexX), vUv.y * 0.5 + float(uIndexY));
-    vec4 tex = texture2D(uTexture, subUv);
+    vec4 tex = texture(uTexture, subUv);
 
     gl_FragColor = tex;
 }

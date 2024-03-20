@@ -14,8 +14,8 @@ void main(){
     vec2 aUv = vUv - 0.5;
     vec2 uv = vec2(aUv.x * cosAngle - aUv.y * sinAngle, aUv.x * sinAngle + aUv.y * cosAngle);
 
-    vec4 rot = texture2D(uTexture, uv + 0.5);
-    vec4 pos = texture2D(uTexture, vUv);
+    vec4 rot = texture(uTexture, uv + 0.5);
+    vec4 pos = texture(uTexture, vUv);
 
     float d = distance(uMouse + 0.5, vUv) / 8.0;
     float distFromCenter = distance(vUv, vec2(0.5, 0.5));

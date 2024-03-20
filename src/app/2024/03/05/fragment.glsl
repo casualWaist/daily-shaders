@@ -13,7 +13,7 @@ void main(){
 
     vec2 subUv = vec2(vUv.x * 0.5 + float(uIndexX), vUv.y * 0.5 - float(uIndexY));
 
-    vec4 tex = texture2D(uTexture, gl_PointCoord * 0.5 + subUv);
+    vec4 tex = texture(uTexture, gl_PointCoord * 0.5 + subUv);
     float dist = distance(vPosition, uRayOrigin) * 0.5;
 
     gl_FragColor = tex * dist;

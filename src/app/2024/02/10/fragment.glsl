@@ -34,7 +34,7 @@ void main(){
     float t = uTime*1.5; //Pro Tip™: multipluy time to go faster!
 
     vec3 refractedVec = refract(vEyeVector, vWorldNormal, 1.0/2.31);
-    vec4 color = texture2D(uTexture, uv + refractedVec.xy);
+    vec4 color = texture(uTexture, uv + refractedVec.xy);
 
     //in uv space
     vec2 p1 = vec2(1.2 * sin(t) + sin(t)*.2, 0.25 + cos(t+pi)*.1);

@@ -6,7 +6,7 @@ import { Caveat } from "next/font/google"
 import fragment from './fragment.glsl'
 import vertex from './vertex.glsl'
 import * as THREE from 'three'
-import {forwardRef, useEffect, useImperativeHandle, useRef} from "react"
+import {forwardRef, useImperativeHandle, useRef} from "react"
 
 const caveat = Caveat({
     subsets: ['latin'],
@@ -70,7 +70,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Night Lights
+                    Chroma Abscura
                 </div>
             </Html>
         </Float>

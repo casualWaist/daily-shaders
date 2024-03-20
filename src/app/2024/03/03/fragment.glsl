@@ -9,7 +9,7 @@ varying vec2 vUv;
 void main(){
 
     vec2 adjUv = vec2(vUv.x * 4.75 * (sin(uTime) + 2.0), vUv.y * 4.3);
-    vec4 tex = texture2D(uTexture, vec2(adjUv.x + sin(uTime * vPosition.x), adjUv.y + uTime * 0.1));
+    vec4 tex = texture(uTexture, vec2(adjUv.x + sin(uTime * vPosition.x), adjUv.y + uTime * 0.1));
     float ss = smoothstep(0.1, 1.0, tex.r * vUv.y);
     ss *= smoothstep(0.0, 0.1, vUv.x);
     ss *= smoothstep(1.0, 0.9, vUv.x);

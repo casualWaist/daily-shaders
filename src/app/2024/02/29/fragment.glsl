@@ -9,7 +9,7 @@ varying vec3 vNormal;
 
 void main(){
 
-    float tex = texture2D(uTexture, gl_PointCoord).r;
+    float tex = texture(uTexture, gl_PointCoord).r;
     float dist = distance(vPosition, uRayOrigin) * 0.5;
     gl_FragColor = vec4(uColor * dist, tex * dist);
     #include <tonemapping_fragment>

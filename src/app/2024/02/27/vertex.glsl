@@ -5,8 +5,8 @@ uniform sampler2D uTexture;
 
 void main() {
     vUv = vec2(uv.x, 1.0 - uv.y);
-    float angle = texture2D(uTexture, vec2(0.5, uv.y * 0.2 - uTime * 0.05)).r * 5. * (uv.y + 0.5) + 0.25;
-    float radius = texture2D(uTexture, vec2(0.5, uTime * 0.01)).r * 2. * (uv.y + 0.25) + 0.125;
+    float angle = texture(uTexture, vec2(0.5, uv.y * 0.2 - uTime * 0.05)).r * 5. * (uv.y + 0.5) + 0.25;
+    float radius = texture(uTexture, vec2(0.5, uTime * 0.01)).r * 2. * (uv.y + 0.25) + 0.125;
     float c = cos(angle) * radius;
     float s = sin(angle) * radius;
     float y = position.y;

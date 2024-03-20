@@ -22,7 +22,7 @@ void main(){
 
     vec3 viewDir = normalize(vPosition - uRayOrigin);
     vec3 light = vec3(0.0);
-    float tex = texture2D(uTexture, gl_PointCoord).r;
+    float tex = texture(uTexture, gl_PointCoord).r;
     float dist = distance(vPosition, uRayOrigin) * 0.5;
     light += pointLight(vec3(1., 1., 1.), 11.0, normalize(vNormal), vPosition, vec3(0.0, sin(uTime) * 4.0, cos(uTime) * 4.0), viewDir, 13.0, 0.25);
     light += pointLight(vec3(1., 1., 1.), 11.0, normalize(vNormal), vPosition, vec3(cos(uTime) * 4.0, 2.0, sin(uTime) * 4.0), viewDir, 13.5, 0.25);

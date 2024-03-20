@@ -10,7 +10,7 @@ void main(){
 
     float index = 10. - uTime - 1.;
     vec2 subUv = vec2(vUv.x * 0.1 + index * 0.1, vUv.y * 0.1 + 0.9);
-    vec4 tex = texture2D(uTexture, subUv);
+    vec4 tex = texture(uTexture, subUv);
 
     gl_FragColor = tex;
 }

@@ -8,7 +8,7 @@ varying vec2 vUv;
 
 void main(){
 
-    vec4 tex = texture2D(uTexture, vUv);
+    vec4 tex = texture(uTexture, vUv);
 
     gl_FragColor = tex - vec4(uColor, 0.0);
     #include <tonemapping_fragment>

@@ -7,7 +7,7 @@ uniform float time;
 // #particlesInGeometry #vertexShape
 void main() {
     vUv = uv;
-    vec4 pos = texture2D(uPositions, uv);
+    vec4 pos = texture(uPositions, uv);
     float radius = length(pos.xy);
     float angle = atan(pos.y, pos.x) + 0.1;
     vec3 targetPos = vec3(cos(angle), sin(angle), 0.0) * radius;
