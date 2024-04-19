@@ -1,7 +1,7 @@
  'use client'
 
 import {Canvas, extend, MaterialNode, MaterialProps, useFrame, useThree} from "@react-three/fiber"
-import {Float, Html, shaderMaterial, OrbitControls, useTexture} from "@react-three/drei"
+import {Float, Html, shaderMaterial, OrbitControls} from "@react-three/drei"
 import { Caveat } from "next/font/google"
 import fragment from './fragment.glsl'
 import vertex from './vertex.glsl'
@@ -13,11 +13,10 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const DotImagePlusShaderImp = shaderMaterial({
+const CursorSandShaderImp = shaderMaterial({
     uTime: 0,
     uMouse: new THREE.Vector2(0, 0),
     uSize: new THREE.Vector2(1, 1),
-    uTexture: new THREE.Texture(),
     uCanvas: null,
     uRayOrigin: new THREE.Vector3(0, 0, 0),
     uColor: new THREE.Color(0.125, 0.0, 0.5),
@@ -26,30 +25,29 @@ const DotImagePlusShaderImp = shaderMaterial({
     //imp.wireframe = true
 } })
 
-extend({ DotImagePlusShaderImp })
+extend({ CursorSandShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            dotImagePlusShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            cursorSandShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type DotImagePlusShaderUniforms = {
+export type CursorSandShaderUniforms = {
     uTime: number
     uMouse?: THREE.Vector2
     uSize?: THREE.Vector2
-    uTexture?: THREE.Texture
     uCanvas: THREE.CanvasTexture
     uRayOrigin?: THREE.Vector3
     uResolution?: THREE.Vector2
     uColor?: THREE.Color
 }
 
-type Props = DotImagePlusShaderUniforms & MaterialProps
+type Props = CursorSandShaderUniforms & MaterialProps
 
-const DotImagePlusShader = forwardRef<DotImagePlusShaderUniforms, Props>(({...props}: Props, ref) => {
+const CursorSandShader = forwardRef<CursorSandShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     useImperativeHandle(ref, () => localRef.current)
     useFrame((state, delta) => {
@@ -57,15 +55,15 @@ const DotImagePlusShader = forwardRef<DotImagePlusShaderUniforms, Props>(({...pr
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <dotImagePlusShaderImp key={DotImagePlusShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <cursorSandShaderImp key={CursorSandShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-DotImagePlusShader.displayName = 'DotImagePlusShader'
+CursorSandShader.displayName = 'CursorSandShader'
 
 export default function Page() {
 
     return <>
         <Canvas style={{position: "absolute", top: "0", zIndex: "-1"}}>
-            <Scene/>
+            <Scene />
             <Float>
                 <Html position={[0, -2.5, 0]}
                       center
@@ -75,7 +73,7 @@ export default function Page() {
                       scale={0.25}
                 >
                     <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                        A Me Brush
+                        Clingy
                     </div>
                 </Html>
             </Float>
@@ -84,15 +82,17 @@ export default function Page() {
     </>
 }
 
-function Scene({props}: { props?: JSX.IntrinsicElements['points'] }) {
+function Scene() {
     const view = useThree((state) => state.viewport)
-    const shader = useRef<DotImagePlusShaderUniforms>(null!)
-    const image = useTexture('/Headshot.webp')
+    const shader = useRef<Props>(null!)
     const canvas = useRef<HTMLCanvasElement>(null!)
     const cTexture = useRef<THREE.CanvasTexture>(null!)
     const ctx = useRef<CanvasRenderingContext2D>(null!)
     const transPlane = useRef<THREE.Mesh>(null!)
     const lastMouse = useRef(new THREE.Vector2(0.5, 0.5))
+    const geometry = useRef<THREE.BufferGeometry>(null!)
+    const particles = useRef(new Float32Array(150))
+    const pointsRef = useRef<THREE.Points>(null!)
 
     const disImage = useRef(new Image())
     disImage.current.src = '/1.png'
@@ -112,6 +112,11 @@ function Scene({props}: { props?: JSX.IntrinsicElements['points'] }) {
                 shader.current.uCanvas = cTexture.current
             }, 100)
         }
+        if (particles.current) {
+            for (let i = 0; i < 150; i++) {
+                particles.current[i] = 999
+            }
+        }
 
     }, [])
 
@@ -121,6 +126,7 @@ function Scene({props}: { props?: JSX.IntrinsicElements['points'] }) {
     }, [view])
 
     let update = false
+    let pos = 0
     useFrame((state) => {
         if (disImage.current){
             state.raycaster.intersectObject(transPlane.current).forEach((inter) => {
@@ -128,6 +134,9 @@ function Scene({props}: { props?: JSX.IntrinsicElements['points'] }) {
                     update = true
                     lastMouse.current.x = inter.uv!.x * 128 - 28
                     lastMouse.current.y = (1.0 - inter.uv!.y) * 128 - 28
+                    if (geometry.current) {
+
+                    }
                 }
             })
             if (update && ctx.current) {
@@ -138,20 +147,31 @@ function Scene({props}: { props?: JSX.IntrinsicElements['points'] }) {
             }
         }
         if (ctx.current) {
-            /*ctx.current.globalCompositeOperation = 'source-over'
+            ctx.current.globalCompositeOperation = 'source-over'
             ctx.current.globalAlpha = 0.05
-            ctx.current.fillRect(0, 0, 128, 128)*/
+            ctx.current.fillRect(0, 0, 128, 128)
             cTexture.current.needsUpdate = true
+        }
+        if (particles.current) {
+            particles.current[pos] = Math.random() * state.pointer.x
+            particles.current[pos + 1] = Math.random() * state.pointer.y
+            particles.current[pos + 2] = 0
+            pos += 3
+            if (pos > 100) {
+                pos = 0
+            }
+            geometry.current.attributes.position.needsUpdate = true
         }
     })
 
     return <>
-        <points {...props}>
-            <planeGeometry args={[view.height, view.height, 120, 120]}/>
-            <DotImagePlusShader
+        <points ref={pointsRef}>
+            <bufferGeometry ref={geometry}>
+                <bufferAttribute attach="attributes-position" count={50} array={particles.current} itemSize={3}/>
+            </bufferGeometry>
+            <CursorSandShader
                 ref={shader}
                 uTime={0}
-                uTexture={image}
                 uCanvas={cTexture.current}
             />
         </points>
@@ -159,7 +179,7 @@ function Scene({props}: { props?: JSX.IntrinsicElements['points'] }) {
             <planeGeometry args={[view.width, view.height]}/>
             <meshBasicMaterial color={'#000'} transparent opacity={0}/>
         </mesh>
-        <Html position={[view.width * 0.5 - 1, view.height * 0.5 - 1, 0.5]}>
+        <Html position={[view.width, view.height * 0.5 - 1, 0.5]}>
             <canvas ref={canvas} width={128} height={128} className="fixed top-0 right-0 border"/>
         </Html>
     </>

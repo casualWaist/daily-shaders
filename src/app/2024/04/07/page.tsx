@@ -13,40 +13,44 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const HatchShaderImp = shaderMaterial({
+const EdgesShaderImp = shaderMaterial({
     uTime: 0,
     uColor: new THREE.Color(0.5, 0.0, 0.025),
     uResolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
 }, vertex, fragment, (imp) => { if (imp) {
+    //imp.wireframe = true
+    imp.side = THREE.DoubleSide
+    imp.depthWrite = false
+    imp.blending = THREE.AdditiveBlending
 } })
 
-extend({ HatchShaderImp })
+extend({ EdgesShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            hatchShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            edgesShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type HatchShaderUniforms = {
+export type EdgesShaderUniforms = {
     uTime: number
     uResolution?: THREE.Vector2
     uColor?: THREE.Color
 }
 
-type Props = HatchShaderUniforms & MaterialProps
+type Props = EdgesShaderUniforms & MaterialProps
 
-const HatchShader = forwardRef<HatchShaderUniforms, Props>(({...props}: Props, ref) => {
+const EdgesShader = forwardRef<EdgesShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     useImperativeHandle(ref, () => localRef.current)
     useFrame((state, delta) => {
         localRef.current.uTime += delta
     })
-    return <hatchShaderImp key={HatchShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <edgesShaderImp key={EdgesShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-HatchShader.displayName = 'HatchShader'
+EdgesShader.displayName = 'EdgesShader'
 
 export default function Page() {
 
@@ -61,7 +65,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', color: "white"}}>
-                    Hatch to Match
+                    My frien called Sel
                 </div>
             </Html>
         </Float>
@@ -70,10 +74,10 @@ export default function Page() {
 }
 function Scene() {
     const faceRef = useRef<THREE.Mesh>(null!)
-    const faceShaderRef = useRef<HatchShaderUniforms>(null!)
+    const faceShaderRef = useRef<EdgesShaderUniforms>(null!)
 
     return <mesh ref={faceRef}>
         <torusKnotGeometry args={[1.5, 0.5, 128]} />
-        <HatchShader ref={faceShaderRef} uTime={0} uColor={new THREE.Color(0.15, 0.2, 0.7)}/>
+        <EdgesShader ref={faceShaderRef} uTime={0} uColor={new THREE.Color(0.1, 0.4, 1)} transparent/>
     </mesh>
 }
