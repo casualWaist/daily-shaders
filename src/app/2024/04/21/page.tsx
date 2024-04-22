@@ -1,4 +1,4 @@
-'use client'
+ 'use client'
 
 import {Canvas, extend, MaterialNode, MaterialProps, useFrame, useThree} from "@react-three/fiber"
 import {Float, Html, shaderMaterial, OrbitControls} from "@react-three/drei"
@@ -13,7 +13,7 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const CursorSparksShaderImp = shaderMaterial({
+const SVGCanvasShaderImp = shaderMaterial({
     uTime: 0,
     uMouse: new THREE.Vector2(0, 0),
     uSize: new THREE.Vector2(1, 1),
@@ -25,17 +25,17 @@ const CursorSparksShaderImp = shaderMaterial({
     //imp.wireframe = true
 } })
 
-extend({ CursorSparksShaderImp })
+extend({ SVGCanvasShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            cursorSparksShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            sVGCanvasShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type CursorSparksShaderUniforms = {
+export type SVGCanvasShaderUniforms = {
     uTime: number
     uMouse?: THREE.Vector2
     uSize?: THREE.Vector2
@@ -45,9 +45,9 @@ export type CursorSparksShaderUniforms = {
     uColor?: THREE.Color
 }
 
-type Props = CursorSparksShaderUniforms & MaterialProps
+type Props = SVGCanvasShaderUniforms & MaterialProps
 
-const CursorSparksShader = forwardRef<CursorSparksShaderUniforms, Props>(({...props}: Props, ref) => {
+const SVGCanvasShader = forwardRef<SVGCanvasShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     useImperativeHandle(ref, () => localRef.current)
     useFrame((state, delta) => {
@@ -55,9 +55,9 @@ const CursorSparksShader = forwardRef<CursorSparksShaderUniforms, Props>(({...pr
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <cursorSparksShaderImp key={CursorSparksShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <sVGCanvasShaderImp key={SVGCanvasShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-CursorSparksShader.displayName = 'CursorSparksShader'
+SVGCanvasShader.displayName = 'SVGCanvasShader'
 
 export default function Page() {
 
@@ -73,7 +73,7 @@ export default function Page() {
                       scale={0.25}
                 >
                     <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                        Had to at<br/>some point
+                        Too many Canvi
                     </div>
                 </Html>
             </Float>
@@ -86,11 +86,12 @@ function Scene() {
     const view = useThree((state) => state.viewport)
     const shader = useRef<Props>(null!)
     const canvas = useRef<HTMLCanvasElement>(null!)
+    const svgCloudRef = useRef<SVGSVGElement>(null!)
     const cTexture = useRef<THREE.CanvasTexture>(null!)
     const ctx = useRef<CanvasRenderingContext2D>(null!)
     const transPlane = useRef<THREE.Mesh>(null!)
     const lastMouse = useRef(new THREE.Vector2(0.5, 0.5))
-    const geometry = useRef<THREE.BufferGeometry>(null!)
+    const geometry = useRef<THREE.PlaneGeometry>(null!)
     const particles = useRef(new Float32Array(150))
     const pointsRef = useRef<THREE.Points>(null!)
 
@@ -100,16 +101,33 @@ function Scene() {
     useEffect(() => {
 
         if (canvas.current) {
+            console.log('canvas')
             ctx.current = canvas.current.getContext('2d')!
             ctx.current.fillRect(0, 0, 128, 128)
             cTexture.current = new THREE.CanvasTexture(canvas.current)
             shader.current.uCanvas = cTexture.current
+            if (svgCloudRef.current) {
+                const svgData = (new XMLSerializer()).serializeToString(svgCloudRef.current)
+                const img = document.createElement("img")
+                img.setAttribute("src", "data:image/svg+xml;base64," + window.btoa(decodeURIComponent(encodeURIComponent(svgData))) )
+                img.onload = function() {
+                    ctx.current.drawImage(img, 0, 0)
+                }
+            }
         } else {
             setTimeout(() => {
                 ctx.current = canvas.current.getContext('2d')!
                 ctx.current.fillRect(0, 0, 128, 128)
                 cTexture.current = new THREE.CanvasTexture(canvas.current)
                 shader.current.uCanvas = cTexture.current
+                if (svgCloudRef.current) {
+                    const svgData = (new XMLSerializer()).serializeToString(svgCloudRef.current)
+                    const img = document.createElement("img")
+                    img.setAttribute("src", "data:image/svg+xml;base64," + window.btoa(decodeURIComponent(encodeURIComponent(svgData))) )
+                    img.onload = function() {
+                        ctx.current.drawImage(img, 0, 0)
+                    }
+                }
             }, 100)
         }
         if (particles.current) {
@@ -148,7 +166,7 @@ function Scene() {
         }
         if (ctx.current) {
             ctx.current.globalCompositeOperation = 'source-over'
-            ctx.current.globalAlpha = 0.05
+            ctx.current.globalAlpha = 0.005
             ctx.current.fillRect(0, 0, 128, 128)
             cTexture.current.needsUpdate = true
         }
@@ -166,10 +184,10 @@ function Scene() {
 
     return <>
         <points ref={pointsRef}>
-            <bufferGeometry ref={geometry}>
+            <planeGeometry ref={geometry} args={[view.width, view.height, 5, 5]}>
                 <bufferAttribute attach="attributes-position" count={50} array={particles.current} itemSize={3}/>
-            </bufferGeometry>
-            <CursorSparksShader
+            </planeGeometry>
+            <SVGCanvasShader
                 ref={shader}
                 uTime={0}
                 uCanvas={cTexture.current}
@@ -181,6 +199,13 @@ function Scene() {
         </mesh>
         <Html position={[view.width * 0.5 - 1, view.height * 0.5 - 1, 0.5]}>
             <canvas ref={canvas} width={128} height={128} className="fixed top-0 right-0 border"/>
+        </Html>
+        <Html position={[-view.width * 0.25, -view.height * 0.25, 0.5]}>
+            <svg ref={svgCloudRef} xmlns="http://www.w3.org/2000/svg" width={128} height={128} viewBox="0 0 16 16" className="fixed top-0 right-0 bg-black">
+                <path fill={"#fff"} fillRule="evenodd"
+                      d="M4.5 6.25a3.25 3.25 0 0 1 6.051-1.65a4.497 4.497 0 0 0-2.35 1.34A.75.75 0 0 0 9.3 6.96a2.99 2.99 0 0 1 2.3-.958A3 3 0 0 1 11.5 12H3.75a2.25 2.25 0 0 1-.002-4.5h.03a.75.75 0 0 0 .747-.843A3.289 3.289 0 0 1 4.5 6.25M7.75 1.5a4.75 4.75 0 0 0-4.747 4.574A3.751 3.751 0 0 0 3.75 13.5h7.75a4.5 4.5 0 0 0 .687-8.948A4.751 4.751 0 0 0 7.75 1.5"
+                      clipRule="evenodd"/>
+            </svg>
         </Html>
     </>
 }
