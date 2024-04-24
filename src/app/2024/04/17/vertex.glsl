@@ -16,7 +16,7 @@ void main() {
     vPoint = uMouse * uResolution;
 
     vPosition = position;
-    vec4 off = texture2D(uCanvas, vUv);
+    vec4 off = texture(uCanvas, vUv);
     vec4 viewPosition = modelViewMatrix * vec4(vec3(uMouse, 0.0) + position, 1.0);
 
     gl_Position = projectionMatrix * viewMatrix * viewPosition * vec4(4.0, 4.0, 1.0, 1.0);

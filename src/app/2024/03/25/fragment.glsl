@@ -18,7 +18,7 @@ void main() {
 
     if (distCent > 0.5) discard;
 
-    vec4 color = texture2D(uTexture, vUv);
+    vec4 color = texture(uTexture, vUv);
 
     gl_FragColor = color;
     #include <tonemapping_fragment>

@@ -19,7 +19,7 @@ void main() {
     vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * viewMatrix * viewPosition;
 
-    vec4 pic = texture2D(uTexture, vUv);
+    vec4 pic = texture(uTexture, vUv);
     float pixIntensity = 1.0 - min(min(pic.r, pic.g), pic.b);
     gl_PointSize = uResolution.y * 0.05 * pixIntensity;
     gl_PointSize *= (1.0 / -viewPosition.z);

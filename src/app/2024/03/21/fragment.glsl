@@ -14,7 +14,7 @@ void main() {
 
     vec2 uv = vec2(mod(uTime * 0.01, 1.0), vUv.y);
     vec4 col = texture(uNoise, uv) + vec4(uColor * 4.0, 1.0);
-    vec4 clip = texture2D(uNoise, vec2(mod(uTime * 0.3, 1.0), vUv.y));
+    vec4 clip = texture(uNoise, vec2(mod(uTime * 0.3, 1.0), vUv.y));
     float bw = smoothstep(0.0 + clip.r, vUv.x, clip.b);
     col = mod(col, 0.85) * bw;
 
