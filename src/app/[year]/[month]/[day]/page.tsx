@@ -17,6 +17,8 @@ export default function Page({params}: {params: {year: string, day: string, mont
                 <div style={{ transform: 'scale(4)', textAlign: 'center' }}>
                     I didn't make a shader on<br/>
                     {params.month + '-' + params.day + '-' + params.year}
+                    <br/>
+                    They start on the 24th of January, 2024.
                 </div>
             </Html>
         </Float>

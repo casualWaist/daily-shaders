@@ -99,7 +99,26 @@ function Scene() {
     const instances = useRef<THREE.InstancedMesh>(null!);
     const dotRefs = useRef<THREE.Mesh[]>([]);
     const lineRef = useRef<THREE.BufferGeometry>(null!);
+
+    // transitions animation from explosion to rotation
     const boom = useRef(false);
+
+    // explosion frame. time -> fin = total time. interval = time between frames
+    const boomTime = useRef(0.1);
+    const boomTimeInterval = useRef(0.005);
+    const boomTimeFin = useRef(1.0);
+
+    const lerps = useMemo(() => {
+        const lerps = new Float32Array(positions.length);
+        for (let i = 0; i < positions.length; i++) {
+            lerps[i] = Math.random() * 0.75;
+        }
+        return lerps
+    }, []);
+
+
+    const lerp = useRef(0.1);
+    const group = useRef(0);
     const lineArray = useMemo(() => {
         const lineArray = new Float32Array(positions.length * 2 * 3);
         for (let i = 0; i < positions.length; i++) {
@@ -120,7 +139,7 @@ function Scene() {
             lineArray[x + 4] = 0;
             lineArray[x + 5] = 0;
         }
-        boom.current = false
+        boom.current = false;
     }, []);
 
     useFrame((state) => {
@@ -147,32 +166,42 @@ function Scene() {
         } else {
             for (let i = 0; i < 100; i++) {
                 const ref = dotRefs.current[i];
-                ref.position.lerp(new THREE.Vector3(positions[i][0], positions[i][1], positions[i][2]), 0.1);
+
+                ref.position.lerp(
+                    new THREE.Vector3(
+                        positions[i][0],
+                        positions[i][1],
+                        positions[i][2]),
+                    lerps[i] * boomTime.current);
+
                 const x = i * 3 * 2;
                 lineArray[x + 3] = ref.position.x;
                 lineArray[x + 4] = ref.position.y;
                 lineArray[x + 5] = ref.position.z;
             }
+            lerp.current = Math.random();
+            group.current += 1;
+            boomTime.current += boomTimeInterval.current;
+            if (group.current > 3) group.current = 0;
         }
-        if (state.clock.elapsedTime > 0.75) boom.current = true;
+        if (boomTime.current > boomTimeFin.current) boom.current = true;
         instances.current.instanceMatrix.needsUpdate = true;
         lineRef.current.attributes.position.needsUpdate = true;
     });
 
     return <>
 
-        {/* Network nodes */}
+        {/* Network particles */}
         {/* @ts-ignore */}
         <Instances ref={instances} limit={1000} range={1000}>
             <sphereGeometry args={[0.02, 16, 16]} />
-            <meshBasicMaterial />
+            <meshStandardMaterial />
 
-            {/* @ts-ignore */}
             { positions.map((value, index) =>
                 // @ts-ignore
                 <Instance ref={(ref) => dotRefs.current[index] = ref as THREE.Mesh}
                     key={index}
-                    color="red"
+                    color={"#a7715f"}
                     position={value}
                 />)}
         </Instances>
@@ -187,12 +216,16 @@ function Scene() {
                     itemSize={3}
                 />
             </bufferGeometry>
-            <lineBasicMaterial color="red" />
+            <lineBasicMaterial color={"#ede2df"} />
         </lineSegments>
 
+        {/* Center Sphere */}
         <mesh>
             <sphereGeometry args={[0.1, 16, 16]} />
-            <meshBasicMaterial color="blue" />
+            <meshStandardMaterial color={"#a7715f"} />
         </mesh>
+
+        <directionalLight position={[-1, 2, 2]} intensity={5.5} />
+        <ambientLight intensity={1.5} />
     </>
 }
