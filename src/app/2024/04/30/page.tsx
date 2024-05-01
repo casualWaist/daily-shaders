@@ -1,28 +1,28 @@
  'use client'
 
 import {Canvas, extend, MaterialNode, MaterialProps, useFrame, useThree} from "@react-three/fiber"
-import {Float, Html, shaderMaterial, OrbitControls} from "@react-three/drei"
+import {Float, Html, shaderMaterial, OrbitControls, useTexture} from "@react-three/drei"
 import { Caveat } from "next/font/google"
 import fragment from './fragment.glsl'
 import vertex from './vertex.glsl'
 import * as THREE from 'three'
-import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useRef} from "react"
+import React, {forwardRef, useImperativeHandle, useMemo, useRef} from "react"
  import {
     AdditiveBlending,
-    DynamicDrawUsage, LineSegments, PerspectiveCamera, Points,
-    Spherical,
+    DynamicDrawUsage, LineSegments, NoBlending, PerspectiveCamera, Points,
+    Spherical, SubtractiveBlending,
     Vector3
 } from "three"
+ import {Perf} from "r3f-perf"
 
 const caveat = Caveat({
     subsets: ['latin'],
     variable: '--font-caveat'
 })
 
-const NotAShaderImp = shaderMaterial({
+const PartSizeShaderImp = shaderMaterial({
     uTime: 0,
-    uMouse: new THREE.Vector2(0, 0),
-    uSize: new THREE.Vector2(1, 1),
+    uSize: 30,
     uTexture: new THREE.Texture(),
     uRayOrigin: new THREE.Vector3(0, 0, 0),
     uColor: new THREE.Color(0.125, 0.0, 0.5),
@@ -31,39 +31,37 @@ const NotAShaderImp = shaderMaterial({
     //imp.wireframe = true
 } })
 
-extend({ NotAShaderImp })
+extend({ PartSizeShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            notAShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            partSizeShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type NotAShaderUniforms = {
-    uTime: number
-    uMouse?: THREE.Vector2
-    uSize?: THREE.Vector2
+export type PartSizeShaderUniforms = {
+    uTime?: number
+    uSize?: number
     uTexture?: THREE.Texture
     uRayOrigin?: THREE.Vector3
-    uResolution?: THREE.Vector2
     uColor?: THREE.Color
+    uResolution?: THREE.Vector2
 }
 
-type Props = NotAShaderUniforms & MaterialProps
+type Props = PartSizeShaderUniforms & MaterialProps
 
-const NotAShader = forwardRef<NotAShaderUniforms, Props>(({...props}: Props, ref) => {
+const PartSizeShader = forwardRef<PartSizeShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     useImperativeHandle(ref, () => localRef.current)
     useFrame((state, delta) => {
-        localRef.current.uTime += delta
-        localRef.current.uMouse = state.pointer
+        localRef.current.uTime! += delta
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <notAShaderImp key={NotAShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <partSizeShaderImp key={PartSizeShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-NotAShader.displayName = 'NotAShader'
+PartSizeShader.displayName = 'PartSizeShader'
 
 export default function Page() {
 
@@ -71,15 +69,15 @@ export default function Page() {
         <Canvas style={{position: "absolute", top: "0", zIndex: "-1"}}>
             <Scene />
             <Float>
-                <Html position={[0, 0, 950]}
+                <Html position={[0, -2.5, 0]}
                       center
                       transform
                       as="h1"
                       className={caveat.className}
                       scale={0.25}
                 >
-                    <div style={{transform: 'scale(32)', textAlign: 'center', pointerEvents: 'none'}}>
-                        Form up!
+                    <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
+                        I swear these<br/>are all different
                     </div>
                 </Html>
             </Float>
@@ -88,15 +86,19 @@ export default function Page() {
     </>
 }
 function Scene() {
-    const count = 500;
+
+    const count = 400;
     const connDist = 150;
     const maxConnections = 20;
     const pointsRef = useRef<Points>(null!);
+    const segsRef = useRef<LineSegments>(null!);
     const camera = useThree((state) => state.camera as PerspectiveCamera);
-    const cameraMoveTo = useRef(new Vector3(0, 0, 1300));
+    const cameraMoveTo = useRef(new Vector3(-200, 0, 1300));
     const moveLerp = useRef(0.000001);
     const moveFinished = useRef(false);
     const fadeFinished = useRef(false);
+    const particleTex = useTexture('/14.png', (loader) => loader.flipY = false)
+
     const [
         particleData,
         positions,
@@ -126,38 +128,41 @@ function Scene() {
         }
         return [data, poses, segs, cols];
     }, []);
-    useEffect(() => {
-        camera.position.set(0, 0, 1000);
-        camera.far = 700;
-        camera.fov = 15;
-        camera.near = 1;
-        camera.updateProjectionMatrix();
-    }, [camera]);
+
     useFrame(() => {
         let vertexpos = 0;
         let colorpos = 0;
         let numConnected = 0;
+
         for (let a = 0; a < count; a++) particleData[a].numConnections = 0;
+
         for (let i = 0; i < count; i++) {
+
             const seekerData = particleData[i];
             const seeker = new Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
+
             positions[i * 3] += seekerData.velocity.x;
             positions[i * 3 + 1] += seekerData.velocity.y;
             positions[i * 3 + 2] += seekerData.velocity.z;
+
             if (seeker.length() > 400) {
                 const normal = seeker.clone().normalize();
                 seekerData.velocity = seekerData.velocity.clone()
-                    .sub(normal.multiplyScalar(2 * normal.dot(seekerData.velocity)));
+                    .sub(normal.multiplyScalar(normal.dot(seekerData.velocity)));
             }
+
             for (let j = i + 1; j < count; j++) {
+
                 const testData = particleData[j];
                 if (testData.numConnections >= maxConnections || seekerData.numConnections >= maxConnections) continue;
                 const test = new Vector3(positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]);
                 const dist = seeker.distanceTo(test);
+
                 /*const dx = positions[ i * 3 ] - positions[ j * 3 ];
                 const dy = positions[ i * 3 + 1 ] - positions[ j * 3 + 1 ];
                 const dz = positions[ i * 3 + 2 ] - positions[ j * 3 + 2 ];
                 const dist = Math.sqrt( dx * dx + dy * dy + dz * dz );*/
+
                 if (dist < connDist) {
                     seekerData.numConnections++;
                     testData.numConnections++;
@@ -168,18 +173,26 @@ function Scene() {
                     segments[vertexpos++] = positions[j * 3];
                     segments[vertexpos++] = positions[j * 3 + 1];
                     segments[vertexpos++] = positions[j * 3 + 2];
-                    colors[colorpos++] = alpha * 0.7922;  // light .7922, default .6549, lighter .8275
-                    colors[colorpos++] = alpha * 0.6666;  // light .6666, default .4431, lighter .7216
-                    colors[colorpos++] = alpha * 0.6235;  // light .6235, default .3725, lighter .6863
-                    colors[colorpos++] = alpha * 0.7922;
-                    colors[colorpos++] = alpha * 0.6666;
-                    colors[colorpos++] = alpha * 0.6235;
+
+                    colors[colorpos++] = alpha + 0.6549;  // light .7922, default .6549, lighter .8275
+                    colors[colorpos++] = alpha + 0.4431;  // light .6666, default .4431, lighter .7216
+                    colors[colorpos++] = alpha + 0.3725;  // light .6235, default .3725, lighter .6863
+
+                    colors[colorpos++] = alpha - 0.5137;
+                    colors[colorpos++] = alpha - 0.5216;
+                    colors[colorpos++] = alpha - 0.651;
                     numConnected++;
                 }
             }
         }
+
+        segsRef.current.geometry.setDrawRange(0, numConnected * 2);
         pointsRef.current.geometry.attributes.position.needsUpdate = true;
+        segsRef.current.geometry.attributes.position.needsUpdate = true;
+        segsRef.current.geometry.attributes.color.needsUpdate = true;
+
         if (!moveFinished.current) {
+
             if (fadeFinished.current) {
                 camera.position.lerp(cameraMoveTo.current, moveLerp.current);
                 moveLerp.current *= 1.001;
@@ -192,11 +205,14 @@ function Scene() {
                     moveLerp.current = 0.000001;
                 }
             }
+
             camera.updateProjectionMatrix();
             moveLerp.current += 0.00025;
         }
     })
+
     return <>
+
         <points ref={pointsRef}>
             <bufferGeometry drawRange={{start: 0, count: count}}>
                 <bufferAttribute
@@ -207,13 +223,37 @@ function Scene() {
                     usage={DynamicDrawUsage}
                 />
             </bufferGeometry>
-            <pointsMaterial
-                color={"#a7715f"}
-                size={3}
-                blending={AdditiveBlending}
+            <PartSizeShader
+                uColor={new THREE.Color(.6549, 0.4431, 0.3725)}
+                uSize={30}
                 transparent
-                sizeAttenuation={false}
+                uTexture={particleTex}
+                depthWrite={false}
             />
         </points>
+
+        <lineSegments ref={segsRef}>
+            <bufferGeometry drawRange={{start: 0, count: 0}}>
+                <bufferAttribute
+                    attach="attributes-position"
+                    count={segments.length / 3}
+                    array={segments}
+                    itemSize={3}
+                    usage={DynamicDrawUsage}
+                />
+                <bufferAttribute
+                    attach="attributes-color"
+                    count={segments.length / 3}
+                    array={colors}
+                    itemSize={3}
+                    usage={DynamicDrawUsage}
+                />
+            </bufferGeometry>
+            <lineBasicMaterial
+                blending={NoBlending}
+                transparent
+                vertexColors
+            />
+        </lineSegments>
     </>
 }

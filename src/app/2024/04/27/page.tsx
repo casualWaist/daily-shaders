@@ -79,7 +79,7 @@ export default function Page() {
                       scale={0.25}
                 >
                     <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-
+                        Net Work
                     </div>
                 </Html>
             </Float>
