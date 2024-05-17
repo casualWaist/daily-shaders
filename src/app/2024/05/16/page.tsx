@@ -14,7 +14,7 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const Scroll4DShaderImp = shaderMaterial({
+const Morph4DShaderImp = shaderMaterial({
     uTime: 0,
     uScroll: 0.00001,
     uMouse: new THREE.Vector2(0, 0),
@@ -27,17 +27,17 @@ const Scroll4DShaderImp = shaderMaterial({
     //imp.wireframe = true
 } })
 
-extend({ Scroll4DShaderImp })
+extend({ Morph4DShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            scroll4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            morph4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type Scroll4DShaderUniforms = {
+export type Morph4DShaderUniforms = {
     uTime?: number
     uScroll?: number
     uMouse?: THREE.Vector2
@@ -48,9 +48,9 @@ export type Scroll4DShaderUniforms = {
     uColor?: THREE.Color
 }
 
-type Props = Scroll4DShaderUniforms & MaterialProps
+type Props = Morph4DShaderUniforms & MaterialProps
 
-const Scroll4DShader = forwardRef<Scroll4DShaderUniforms, Props>(({...props}: Props, ref) => {
+const Morph4DShader = forwardRef<Morph4DShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     const canvas = useThree((state) => state.gl.domElement)
     useImperativeHandle(ref, () => localRef.current)
@@ -71,9 +71,9 @@ const Scroll4DShader = forwardRef<Scroll4DShaderUniforms, Props>(({...props}: Pr
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <scroll4DShaderImp key={Scroll4DShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <morph4DShaderImp key={Morph4DShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-Scroll4DShader.displayName = 'Scroll4DShader'
+Morph4DShader.displayName = 'Morph4DShader'
 
 export default function Page() {
     return <Canvas style={{position: "fixed", top: "0", zIndex: "-1", pointerEvents: 'auto'}}>
@@ -87,7 +87,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Like a<br/>Record Baby
+                    Scr<b className="text-xl">•</b>|_<b className="relative top-[-0.75rem]">_</b>|
                 </div>
             </Html>
         </Float>
@@ -109,7 +109,7 @@ function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
         <mesh position={[0, 0, 0]} {...props}>
             <planeGeometry args={[4, 4]}/>
             {/* @ts-ignore */}
-            <Scroll4DShader ref={shaderRef}/>
+            <Morph4DShader ref={shaderRef}/>
         </mesh>
         <mesh ref={meshRef} position={[2, 0, 0]}>
             <sphereGeometry args={[0.1, 32, 32]}/>
