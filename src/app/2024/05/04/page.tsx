@@ -14,7 +14,7 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const Ray4DScrollShaderImp = shaderMaterial({
+const Tet4DShaderImp = shaderMaterial({
     uTime: 0,
     uScroll: 0,
     uMouse: new THREE.Vector2(0, 0),
@@ -27,17 +27,17 @@ const Ray4DScrollShaderImp = shaderMaterial({
     //imp.wireframe = true
 } })
 
-extend({ Ray4DScrollShaderImp })
+extend({ Tet4DShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            ray4DScrollShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            tet4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type Ray4DScrollShaderUniforms = {
+export type Tet4DShaderUniforms = {
     uTime?: number
     uScroll?: number
     uMouse?: THREE.Vector2
@@ -48,9 +48,9 @@ export type Ray4DScrollShaderUniforms = {
     uColor?: THREE.Color
 }
 
-type Props = Ray4DScrollShaderUniforms & MaterialProps
+type Props = Tet4DShaderUniforms & MaterialProps
 
-const Ray4DScrollShader = forwardRef<Ray4DScrollShaderUniforms, Props>(({...props}: Props, ref) => {
+const Tet4DShader = forwardRef<Tet4DShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     const canvas = useThree((state) => state.gl.domElement)
     useImperativeHandle(ref, () => localRef.current)
@@ -71,9 +71,9 @@ const Ray4DScrollShader = forwardRef<Ray4DScrollShaderUniforms, Props>(({...prop
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <ray4DScrollShaderImp key={Ray4DScrollShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <tet4DShaderImp key={Tet4DShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-Ray4DScrollShader.displayName = 'Ray4DScrollShader'
+Tet4DShader.displayName = 'Tet4DShader'
 
 export default function Page() {
     return <Canvas style={{position: "fixed", top: "0", zIndex: "-1", pointerEvents: 'auto'}}>
@@ -100,6 +100,6 @@ function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
 
     return <mesh ref={meshRef} position={[0, 0, 0]} {...props}>
         <planeGeometry args={[4, 4]}/>
-        <Ray4DScrollShader/>
+        <Tet4DShader/>
     </mesh>
 }

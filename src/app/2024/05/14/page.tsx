@@ -14,30 +14,30 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const Ray4DScrollShaderImp = shaderMaterial({
+const Rotate4DShaderImp = shaderMaterial({
     uTime: 0,
     uScroll: 0,
     uMouse: new THREE.Vector2(0, 0),
     uSize: new THREE.Vector2(1, 1),
     uTexture: new THREE.Texture(),
     uRayOrigin: new THREE.Vector3(0, 0, 0),
-    uColor: new THREE.Color(0.4431,0.6549,  0.3725),
+    uColor: new THREE.Color(0.6549, 0.4431, 0.3725),
     uResolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
 }, vertex, fragment, (imp) => { if (imp) {
     //imp.wireframe = true
 } })
 
-extend({ Ray4DScrollShaderImp })
+extend({ Rotate4DShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            ray4DScrollShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            rotate4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type Ray4DScrollShaderUniforms = {
+export type Rotate4DShaderUniforms = {
     uTime?: number
     uScroll?: number
     uMouse?: THREE.Vector2
@@ -48,9 +48,9 @@ export type Ray4DScrollShaderUniforms = {
     uColor?: THREE.Color
 }
 
-type Props = Ray4DScrollShaderUniforms & MaterialProps
+type Props = Rotate4DShaderUniforms & MaterialProps
 
-const Ray4DScrollShader = forwardRef<Ray4DScrollShaderUniforms, Props>(({...props}: Props, ref) => {
+const Rotate4DShader = forwardRef<Rotate4DShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     const canvas = useThree((state) => state.gl.domElement)
     useImperativeHandle(ref, () => localRef.current)
@@ -71,9 +71,9 @@ const Ray4DScrollShader = forwardRef<Ray4DScrollShaderUniforms, Props>(({...prop
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <ray4DScrollShaderImp key={Ray4DScrollShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <rotate4DShaderImp key={Rotate4DShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-Ray4DScrollShader.displayName = 'Ray4DScrollShader'
+Rotate4DShader.displayName = 'Rotate4DShader'
 
 export default function Page() {
     return <Canvas style={{position: "fixed", top: "0", zIndex: "-1", pointerEvents: 'auto'}}>
@@ -87,7 +87,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Scroll 4<br/>Dimension
+                    Ro NO
                 </div>
             </Html>
         </Float>
@@ -100,6 +100,6 @@ function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
 
     return <mesh ref={meshRef} position={[0, 0, 0]} {...props}>
         <planeGeometry args={[4, 4]}/>
-        <Ray4DScrollShader/>
+        <Rotate4DShader/>
     </mesh>
 }
