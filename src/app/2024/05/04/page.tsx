@@ -16,7 +16,7 @@ const caveat = Caveat({
 
 const Tet4DShaderImp = shaderMaterial({
     uTime: 0,
-    uScroll: 0,
+    uScroll: 0.00001,
     uMouse: new THREE.Vector2(0, 0),
     uSize: new THREE.Vector2(1, 1),
     uTexture: new THREE.Texture(),
@@ -87,7 +87,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Scroll 4<br/>Dimension
+                    Ro, Ro, Ro<br/>Your Ray
                 </div>
             </Html>
         </Float>
@@ -96,10 +96,24 @@ export default function Page() {
 
 
 function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
+    const shaderRef = useRef<THREE.ShaderMaterial>(null!)
     const meshRef = useRef<THREE.Mesh>(null!)
 
-    return <mesh ref={meshRef} position={[0, 0, 0]} {...props}>
-        <planeGeometry args={[4, 4]}/>
-        <Tet4DShader/>
-    </mesh>
+    useFrame(() => {
+        if (meshRef.current && shaderRef.current) {
+            meshRef.current.position.y = -shaderRef.current.uniforms.uScroll!.value * 0.1
+        }
+    })
+
+    return <>
+        <mesh position={[0, 0, 0]} {...props}>
+            <planeGeometry args={[4, 4]}/>
+            {/* @ts-ignore */}
+            <Tet4DShader ref={shaderRef}/>
+        </mesh>
+        <mesh ref={meshRef} position={[2, 0, 0]}>
+            <sphereGeometry args={[0.1, 32, 32]}/>
+            <meshBasicMaterial color="orange"/>
+        </mesh>
+    </>
 }

@@ -36,13 +36,16 @@ float map(vec4 p) {
     return smin(sphere, sphere2, 1.);
 }
 
+// rotate raymarching camera
+
 void main() {
 
     // Initialization
     vec3 ro = vec3(0, 0, -3);         // ray origin
-    ro.xz = mat2(cos(uTime), sin(uTime), -sin(uTime), cos(uTime)) * ro.xz;
+    float aS = uScroll * 0.2;
+    ro.xz = mat2(cos(aS), sin(aS), -sin(aS), cos(aS)) * ro.xz;
     vec3 rd = normalize(vec3(vUv, 1)); // ray direction
-    rd.xz = mat2(cos(uTime), sin(uTime), -sin(uTime), cos(uTime)) * rd.xz;
+    rd.xz = mat2(cos(aS), sin(aS), -sin(aS), cos(aS)) * rd.xz;
     vec3 col = vec3(0);               // final pixel color
 
     float t = 0.; // total distance travelled
@@ -61,6 +64,7 @@ void main() {
 
     // Coloring
     col = vec3(t * 0.2);           // color based on distance
+    vec3 colorOff = vec3(cos(uScroll * 0.1), sin(uScroll * 0.1), tan(uScroll * 0.1));
 
-    gl_FragColor = vec4(uColor - col, col.r);
+    gl_FragColor = vec4(uColor * colorOff - col, 1.0 - col.r);
 }

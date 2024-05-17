@@ -14,30 +14,30 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const Rotate4DShaderImp = shaderMaterial({
+const Morph4DShaderImp = shaderMaterial({
     uTime: 0,
-    uScroll: 0,
+    uScroll: 0.00001,
     uMouse: new THREE.Vector2(0, 0),
     uSize: new THREE.Vector2(1, 1),
     uTexture: new THREE.Texture(),
     uRayOrigin: new THREE.Vector3(0, 0, 0),
-    uColor: new THREE.Color(0.6549, 0.4431, 0.3725),
+    uColor: new THREE.Color(0.4431,0.6549,  0.6725),
     uResolution: typeof window !== 'undefined' ? new THREE.Vector2(window.innerWidth, window.innerHeight) : new THREE.Vector2(1, 1),
 }, vertex, fragment, (imp) => { if (imp) {
     //imp.wireframe = true
 } })
 
-extend({ Rotate4DShaderImp })
+extend({ Morph4DShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            rotate4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            morph4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type Rotate4DShaderUniforms = {
+export type Morph4DShaderUniforms = {
     uTime?: number
     uScroll?: number
     uMouse?: THREE.Vector2
@@ -48,9 +48,9 @@ export type Rotate4DShaderUniforms = {
     uColor?: THREE.Color
 }
 
-type Props = Rotate4DShaderUniforms & MaterialProps
+type Props = Morph4DShaderUniforms & MaterialProps
 
-const Rotate4DShader = forwardRef<Rotate4DShaderUniforms, Props>(({...props}: Props, ref) => {
+const Morph4DShader = forwardRef<Morph4DShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     const canvas = useThree((state) => state.gl.domElement)
     useImperativeHandle(ref, () => localRef.current)
@@ -71,9 +71,9 @@ const Rotate4DShader = forwardRef<Rotate4DShaderUniforms, Props>(({...props}: Pr
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <rotate4DShaderImp key={Rotate4DShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <morph4DShaderImp key={Morph4DShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-Rotate4DShader.displayName = 'Rotate4DShader'
+Morph4DShader.displayName = 'Morph4DShader'
 
 export default function Page() {
     return <Canvas style={{position: "fixed", top: "0", zIndex: "-1", pointerEvents: 'auto'}}>
@@ -87,13 +87,12 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Ro NO
+                    Like a<br/>Record Baby
                 </div>
             </Html>
         </Float>
     </Canvas>
 }
-
 
 
 function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
@@ -102,7 +101,7 @@ function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
 
     useFrame(() => {
         if (meshRef.current && shaderRef.current) {
-            meshRef.current.position.y = -shaderRef.current.uniforms.uScroll!.value * 0.1
+            meshRef.current.position.y = -shaderRef.current.uniforms.uScroll!.value * 0.01
         }
     })
 
@@ -110,7 +109,7 @@ function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
         <mesh position={[0, 0, 0]} {...props}>
             <planeGeometry args={[4, 4]}/>
             {/* @ts-ignore */}
-            <Rotate4DShader ref={shaderRef}/>
+            <Morph4DShader ref={shaderRef}/>
         </mesh>
         <mesh ref={meshRef} position={[2, 0, 0]}>
             <sphereGeometry args={[0.1, 32, 32]}/>

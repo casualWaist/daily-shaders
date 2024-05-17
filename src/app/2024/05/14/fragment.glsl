@@ -22,7 +22,9 @@ void main() {
 
     // Initialization
     vec3 ro = vec3(0, 0, -3);         // ray origin
+    ro.xz = mat2(cos(uScroll), sin(uScroll), -sin(uScroll), cos(uScroll)) * ro.xz;
     vec3 rd = normalize(vec3(vUv, 1)); // ray direction
+    rd.xz = mat2(cos(uScroll), sin(uScroll), -sin(uScroll), cos(uScroll)) * rd.xz;
     vec3 col = vec3(0);               // final pixel color
 
     float t = 0.; // total distance travelled

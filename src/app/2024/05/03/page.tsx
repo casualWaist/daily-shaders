@@ -87,7 +87,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Scroll 4<br/>Dimension
+                    Scroll Up 4<br/>Dimension
                 </div>
             </Html>
         </Float>
@@ -96,10 +96,24 @@ export default function Page() {
 
 
 function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
+    const shaderRef = useRef<THREE.ShaderMaterial>(null!)
     const meshRef = useRef<THREE.Mesh>(null!)
 
-    return <mesh ref={meshRef} position={[0, 0, 0]} {...props}>
-        <planeGeometry args={[4, 4]}/>
-        <Ray4DScrollShader/>
-    </mesh>
+    useFrame(() => {
+        if (meshRef.current && shaderRef.current) {
+            meshRef.current.position.y = -shaderRef.current.uniforms.uScroll!.value * 0.1
+        }
+    })
+
+    return <>
+        <mesh position={[0, 0, 0]} {...props}>
+            <planeGeometry args={[4, 4]}/>
+            {/* @ts-ignore */}
+            <Ray4DScrollShader ref={shaderRef}/>
+        </mesh>
+        <mesh ref={meshRef} position={[2, 0, 0]}>
+            <sphereGeometry args={[0.1, 32, 32]}/>
+            <meshBasicMaterial color="orange"/>
+        </mesh>
+    </>
 }
