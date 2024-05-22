@@ -14,7 +14,7 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const Morph4DShaderImp = shaderMaterial({
+const RayIMMShaderImp = shaderMaterial({
     uTime: 0,
     uScroll: 0.00001,
     uMouse: new THREE.Vector2(0, 0),
@@ -27,17 +27,17 @@ const Morph4DShaderImp = shaderMaterial({
     //imp.wireframe = true
 } })
 
-extend({ Morph4DShaderImp })
+extend({ RayIMMShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            morph4DShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            rayIMMShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type Morph4DShaderUniforms = {
+export type RayIMMShaderUniforms = {
     uTime?: number
     uScroll?: number
     uMouse?: THREE.Vector2
@@ -48,9 +48,9 @@ export type Morph4DShaderUniforms = {
     uColor?: THREE.Color
 }
 
-type Props = Morph4DShaderUniforms & MaterialProps
+type Props = RayIMMShaderUniforms & MaterialProps
 
-const Morph4DShader = forwardRef<Morph4DShaderUniforms, Props>(({...props}: Props, ref) => {
+const RayIMMShader = forwardRef<RayIMMShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     const canvas = useThree((state) => state.gl.domElement)
     const lastTouch = useRef<Touch | null>(null)
@@ -94,9 +94,9 @@ const Morph4DShader = forwardRef<Morph4DShaderUniforms, Props>(({...props}: Prop
         localRef.current.uMouse = state.pointer
         localRef.current.uRayOrigin = state.camera.position
     })
-    return <morph4DShaderImp key={Morph4DShaderImp.key} ref={localRef} attach="material" {...props} />
+    return <rayIMMShaderImp key={RayIMMShaderImp.key} ref={localRef} attach="material" {...props} />
 })
-Morph4DShader.displayName = 'Morph4DShader'
+RayIMMShader.displayName = 'RayIMMShader'
 
 export default function Page() {
     return <Canvas style={{position: "fixed", top: "0", zIndex: "-1", pointerEvents: 'auto'}}>
@@ -110,7 +110,7 @@ export default function Page() {
                   scale={0.25}
             >
                 <div style={{transform: 'scale(4)', textAlign: 'center', pointerEvents: 'none'}}>
-                    Scr<b className="text-xl">•</b>|_<b className="relative top-[-0.75rem]">_</b>|
+                    sssSinging<br/>in the Rain
                 </div>
             </Html>
         </Float>
@@ -121,6 +121,13 @@ export default function Page() {
 function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
     const shaderRef = useRef<THREE.ShaderMaterial>(null!)
     const meshRef = useRef<THREE.Mesh>(null!)
+    const { viewport } = useThree()
+
+    useEffect(() => {
+        if (shaderRef.current){
+            shaderRef.current.uniforms.uSize!.value = new THREE.Vector2(viewport.width, viewport.height)
+        }
+    }, [viewport])
 
     useFrame(() => {
         if (meshRef.current && shaderRef.current) {
@@ -130,11 +137,11 @@ function Scene({props}: {props?: JSX.IntrinsicElements['mesh']}) {
 
     return <>
         <mesh position={[0, 0, 0]} {...props}>
-            <planeGeometry args={[4, 4]}/>
+            <planeGeometry args={[viewport.width, viewport.height]}/>
             {/* @ts-ignore */}
-            <Morph4DShader ref={shaderRef}/>
+            <RayIMMShader ref={shaderRef}/>
         </mesh>
-        <mesh ref={meshRef} position={[2, 0, 0]}>
+        <mesh ref={meshRef} position={[viewport.width * 0.45, 0, 0]}>
             <sphereGeometry args={[0.1, 32, 32]}/>
             <meshBasicMaterial color="orange"/>
         </mesh>

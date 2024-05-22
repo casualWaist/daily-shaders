@@ -53,17 +53,40 @@ type Props = Crap4DShaderUniforms & MaterialProps
 const Crap4DShader = forwardRef<Crap4DShaderUniforms, Props>(({...props}: Props, ref) => {
     const localRef = useRef<Props>(null!)
     const canvas = useThree((state) => state.gl.domElement)
+    const lastTouch = useRef<Touch | null>(null)
     useImperativeHandle(ref, () => localRef.current)
 
     useEffect(() => {
-        canvas.addEventListener('wheel', (e) => {
+        const handleScroll = (e: WheelEvent) => {
             if (e.deltaY === -0 || e.deltaY === 0 || (e.deltaY < 0.01 && e.deltaY > -0.01)) return
             if (e.deltaY > 0) {
                 localRef.current.uScroll! -= 0.1
             } else {
                 localRef.current.uScroll! += 0.1
             }
-        })
+        }
+        canvas.addEventListener('wheel', handleScroll )
+
+        const handleTouch = (e: TouchEvent) => {
+            if (e.touches.length >= 1 && e.changedTouches.length >= 1) {
+                const touch = e.changedTouches[0]
+                if (lastTouch.current) {
+                    if (touch.clientY > lastTouch.current?.clientY) {
+                        localRef.current.uScroll! -= 0.1
+                    } else {
+                        localRef.current.uScroll! += 0.1
+                    }
+                    lastTouch.current = touch
+                } else {
+                    lastTouch.current = touch
+                }
+            }
+        }
+        canvas.addEventListener('touchmove', handleTouch)
+        return () => {
+            canvas.removeEventListener('wheel', handleScroll)
+            canvas.removeEventListener('touchmove', handleTouch)
+        }
     }, [])
 
     useFrame((state, delta) => {
