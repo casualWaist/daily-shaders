@@ -3,7 +3,7 @@
 import {Canvas, MaterialNode, MaterialProps, useThree, createPortal} from "@react-three/fiber"
 import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
-import {CameraShake, Float, Html, OrbitControls, shaderMaterial, useFBO, useGLTF} from '@react-three/drei'
+import { Float, Html, OrbitControls, shaderMaterial, useFBO, useGLTF, useTexture} from '@react-three/drei'
 import vertex from './vertex.glsl'
 import fragment from './fragment.glsl'
 import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState} from 'react'
@@ -16,8 +16,9 @@ const caveat = Caveat({
     variable: '--font-caveat'
 })
 
-const SimToShaderImp = shaderMaterial({
+const SimAlsoShaderImp = shaderMaterial({
     uPositions: new THREE.DataTexture(),
+    uTexture: new THREE.Texture(),
     uTime: 0,
     uCurlFreq: 0.25,
 },`
@@ -27,6 +28,7 @@ const SimToShaderImp = shaderMaterial({
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }`, `
     uniform sampler2D uPositions;
+    uniform sampler2D uTexture;
     uniform float uTime;
     uniform float uCurlFreq;
     varying vec2 vUv;
@@ -226,55 +228,59 @@ const SimToShaderImp = shaderMaterial({
     void main() {
         float t = uTime * 0.15;
         vec3 pos = texture(uPositions, vUv).rgb;
-        vec3 curlPos = texture(uPositions, vUv).rgb;
+        vec3 curlPos = texture(uTexture, vUv).rgb;
         pos = pos - curl(pos + t) * 0.01;
-        //curlPos = curl(curlPos * uCurlFreq + t);
-        //curlPos += curl(curlPos * uCurlFreq) * 0.25;
-        //curlPos += curl(curlPos * uCurlFreq * 2.0) * 0.125;
-        //curlPos += curl(-curlPos * uCurlFreq * 8.0) * 0.125;
-        //curlPos += curl(pos * uCurlFreq * 16.0) * 0.125;
+        curlPos = curl(curlPos * uCurlFreq + t);
         gl_FragColor = vec4(mix(pos, curlPos, noise(pos + t)), 1.0);
     }`
 )
 
-extend({ SimToShaderImp })
+extend({ SimAlsoShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            simToShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            simAlsoShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type SimToShaderUniforms = {
+export type SimAlsoShaderUniforms = {
     uTime?: number
     uPositions?: THREE.DataTexture
+    uTexture?: THREE.Texture
     uCurlFreq?: number
 }
 
-type SimProps = SimToShaderUniforms & MaterialProps
+type SimProps = SimAlsoShaderUniforms & MaterialProps
 
-const SimToShader = forwardRef(({ ...props }: SimProps, ref) => {
+const SimAlsoShader = forwardRef(({ ...props }: SimProps, ref) => {
     const localRef = useRef<THREE.ShaderMaterial & {
-        uTime: number, uPositions: THREE.DataTexture, uCurlFreq: number}>(null!)
+        uTime: number, uPositions: THREE.DataTexture, uTexture: THREE.Texture, uCurlFreq: number}>(null!)
+    const texture = useTexture('/noise.png')
 
     useImperativeHandle(ref, () => localRef.current)
+
+    useEffect(() => {
+        localRef.current.uTexture = texture
+        localRef.current.uTexture.needsUpdate = true
+    }, [])
 
     useFrame((_, delta) => {
         localRef.current.uTime += delta
         localRef.current.uCurlFreq = THREE.MathUtils.lerp(localRef.current.uCurlFreq, 0.25, 0.1)
     })
-    return <simToShaderImp key={SimToShaderImp.key} ref={localRef} {...props} attach='material' />
+    return <simAlsoShaderImp key={SimAlsoShaderImp.key} ref={localRef} {...props} attach='material' />
 })
-SimToShader.displayName = 'SimToShader'
+SimAlsoShader.displayName = 'SimAlsoShader'
 
-const Shimmer24ShaderImp = shaderMaterial({
+const Blur24ShaderImp = shaderMaterial({
     uTime: 0,
     uPositions: new THREE.DataTexture(),
     uMouse: new THREE.Vector2(0, 0),
     uPoints: [0.5, 0.5, 0.5],
     uCamera: new THREE.Vector3(0, 0, 5),
+    uFocus: 5.0,
     uSize: new THREE.Vector2(1, 1),
     uTexture: new THREE.Texture(),
     uColor: new THREE.Color(0.83, 0.74, 0.55),
@@ -286,31 +292,32 @@ const Shimmer24ShaderImp = shaderMaterial({
     //imp.blending = THREE.AdditiveBlending
 } })
 
-extend({ Shimmer24ShaderImp })
+extend({ Blur24ShaderImp })
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            shimmer24ShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
+            blur24ShaderImp: MaterialNode<any, typeof THREE.MeshStandardMaterial>
         }
     }
 }
 
-export type Shimmer24ShaderUniforms = {
+export type Blur24ShaderUniforms = {
     uTime?: number
     uPositions?: THREE.DataTexture
     uMouse?: THREE.Vector2
     uPoints?: number[]
     uCamera?: THREE.Vector3
+    uFocus?: number
     uSize?: THREE.Vector2
     uTexture?: THREE.Texture
     uResolution?: THREE.Vector2
     uColor?: THREE.Color
 }
 
-type Props = Shimmer24ShaderUniforms & MaterialProps
+type Props = Blur24ShaderUniforms & MaterialProps
 
-const Shimmer24Shader = forwardRef(({ ...props }: Props, ref) => {
+const Blur24Shader = forwardRef(({ ...props }: Props, ref) => {
     const localRef = useRef<THREE.ShaderMaterial & {
         uTime: number, uMouse: THREE.Vector2, uColor:THREE.Color, uResolution?: THREE.Vector2}>(null!)
 
@@ -319,20 +326,19 @@ const Shimmer24Shader = forwardRef(({ ...props }: Props, ref) => {
     useFrame((_, delta) => {
         localRef.current.uTime += delta
     })
-    return <shimmer24ShaderImp key={Shimmer24ShaderImp.key} ref={localRef} {...props} attach='material' />
+    return <blur24ShaderImp key={Blur24ShaderImp.key} ref={localRef} {...props} attach='material' />
 })
-Shimmer24Shader.displayName = 'Shimmer24Shader'
+Blur24Shader.displayName = 'Blur24Shader'
 
 export default function Page() {
-    return <Canvas  style={{position: "absolute", top: "0", zIndex: "-1", backgroundColor: '#043314'}}>
+    return <Canvas  style={{position: "absolute", top: "0", zIndex: "-1", backgroundColor: '#134f69'}}>
         <Scene />
         <OrbitControls />
-        <CameraShake yawFrequency={1} maxYaw={0.05} pitchFrequency={1} maxPitch={0.05} rollFrequency={0.5} maxRoll={0.5} intensity={0.2} />
         <Float>
             <Html position={[0, -2, 1]}
                   center transform as="h1" className={caveat.className} scale={0.25}>
                 <div style={{ transform: 'scale(4)', textAlign: 'center', color: 'white' }}>
-                    Willie Mays
+                    Drone Swarm
                 </div>
             </Html>
         </Float>
@@ -351,8 +357,8 @@ function Scene() {
     const view = useThree((state) => state.viewport)
     const [simCamera] = useState(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 1 / Math.pow(2, 53), 1))
     const [simScene] = useState(() => new THREE.Scene())
-    const shader = useRef<Shimmer24ShaderUniforms & ShaderMaterial>(null!)
-    const simShader = useRef<SimToShaderUniforms & ShaderMaterial>(null!)
+    const shader = useRef<Blur24ShaderUniforms & ShaderMaterial>(null!)
+    const simShader = useRef<SimAlsoShaderUniforms & ShaderMaterial>(null!)
     const points = useRef<THREE.Points>(null!)
 
     const tGeo = useGLTF('/24.glb') as GLTFResult
@@ -411,20 +417,19 @@ function Scene() {
         {createPortal(
             <mesh>
                 <planeGeometry args={[2, 2]}/>
-                <SimToShader ref={simShader} />
+                <SimAlsoShader ref={simShader} />
             </mesh>,
             simScene
         )}
         <group position={[0, -1.5 * (view.width / 11.0), 0]} rotation={[Math.PI * 0.5, 0, 0]}>
             <points ref={points} scale={ 5 * (view.width / 11.0) }>
                 <bufferGeometry attach="geometry" {...tGeo.nodes.Text.geometry} />
-                <Shimmer24Shader ref={shader}
+                <Blur24Shader ref={shader}
                                uPositions={texture}
                                depthWrite={false}
-                               depthTest={false}
                                transparent
-                               blending={THREE.AdditiveBlending}
-                               uColor={new THREE.Color(0.1, 0.4, 1)}/>
+                               blending={THREE.NormalBlending}
+                               uColor={new THREE.Color(0.96, 0.5333, 0.204)}/>
             </points>
         </group>
     </>
