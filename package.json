@@ -14,6 +14,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@react-three/drei": "^9.105.4",
     "@react-three/fiber": "^8.16.0",
+    "@react-three/postprocessing": "^2.16.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.0",
@@ -22,6 +23,7 @@
     "react": "^18",
     "react-day-picker": "^8.10.0",
     "react-dom": "^18",
+    "rive-react": "^4.13.8",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "three-custom-shader-material": "^5.4.0"
