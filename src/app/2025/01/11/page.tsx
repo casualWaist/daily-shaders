@@ -1,6 +1,6 @@
 'use client'
 
-import {Inter} from "next/font/google"
+import {Inter, Roboto} from "next/font/google"
 import React from 'react'
 import Image from "next/image"
 import {twMerge} from "tailwind-merge"
@@ -10,18 +10,45 @@ const inter = Inter({
     variable: '--font-inter'
 })
 
+const roboto = Roboto({
+    weight: '500',
+    subsets: ['latin'],
+    variable: '--font-roboto'
+})
+
 export default function Page() {
     return (
         <div className={twMerge("absolute w-full top-0 z-10 bg-[#0b0c14] text-white", inter.variable)}>
-            <div className="absolute w-full h-full -z-10 p-2 rounded-full
+            <div className="absolute w-full h-[55%] top-0 z-[-5] p-2
                 bg-[radial-gradient(circle,_#38bdf9_0%,_#0b0c14_40%)]"/>
-            <div className="absolute w-full h-full -z-10 p-2 rounded-full
+            <Image
+                src="/grain.png"
+                alt="grain overlay"
+                width={1240}
+                height={870}
+                className="absolute w-full h-full opacity-[0.03] z-[-5]"/>
+            <Image
+                src="/grain.png"
+                alt="grain overlay"
+                width={1240}
+                height={870}
+                className="absolute w-full h-[-99%] opacity-[0.06] z-[-5]"/>
+            <div className="absolute w-full h-[55%] z-[-4] p-2
                 bg-[radial-gradient(circle,_#0b0c1429_0%,_#0b0c14_40%)]"/>
             <Header/>
             <HeroSection/>
             <section className="w-full flex items-center justify-center">
                 <Image src="/hungerGames.webp" alt="Hero Image" width={1240} height={870}/>
             </section>
+            <div className="w-full flex flex-col gap-4 justify-center items-center pt-24">
+                <p className={twMerge("uppercase text-[#38BDF8] text-xs", roboto.className)}>
+                    testimonials
+                </p>
+                <h2 className="p-2 text-center" style={{fontSize: '3rem', lineHeight: '62.4px'}}>
+                    Supercharging thousands<br/>of Snowflake users
+                </h2>
+            </div>
+            <Testimonials />
         </div>
     )
 }
@@ -87,14 +114,47 @@ function HeroSection() {
     )
 }
 
+function Testimonials() {
+    return (
+        <section className="relative flex justify-center items-center w-full px-8 pt-20 pb-10 z-0">
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0b0c14]
+             from-10% to-transparent to-25% z-20"/>
+            <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-[#0b0c14]
+             from-10% to-transparent to-25% z-20"/>
+            <div className="flex w-5/6 justify-between z-0 overflow-hidden max-h-[700px]">
+                <div className="flex flex-col items-center gap-[2px] animate-scroll-down">
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                </div>
+                <div className="flex flex-col items-center gap-[2px] animate-scroll-up">
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                </div>
+                <div className="flex flex-col items-center gap-[2px] animate-scroll-down">
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                    <Image src="/TestimonialCard.png" alt="Testimonial" width={400} height={320}/>
+                </div>
+            </div>
+        </section>
+    )
+}
+
 function SpecialButton() {
     return (
         <button className="relative flex justify-center items-center gap-2 rounded-full py-2 px-4 text-sm
             overflow-hidden">
-            <div className="absolute w-full aspect-[1/4] -z-10 p-2 rounded-full
-                 bg-[conic-gradient(from_0deg,_#3b3f5a00,_#18182B00_60%,_#38BDF8)] animate-[spin_3s_linear_infinite]"
-                style={{transform: 'scaleY'}}/>
-            <div className="absolute w-[98%] h-[94%] -z-10 p-2 rounded-full
+            <div className="absolute w-full aspect-[1/4] -z-[3] p-2 rounded-full
+                 bg-[conic-gradient(from_0deg,_#3b3f5a00,_#18182B00_60%,_#38BDF8)] animate-[spin_3s_linear_infinite]"/>
+            <div className="absolute w-[98%] h-[94%] -z-[2] p-2 rounded-full
                 bg-[radial-gradient(circle_at_top,_#3b3f5a_0%,_#18182B_100%)]"/>
             <Stars/>
             Introducing Insights
