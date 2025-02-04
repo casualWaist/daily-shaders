@@ -177,8 +177,8 @@ function Stars() {
 function ChevronRight() {
     return (
         <svg width="5" height="9" viewBox="0 0 5 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0.75 1L4.25 4.5L0.75 8" stroke="white" stroke-opacity="0.9" stroke-width="1.05"
-                  stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0.75 1L4.25 4.5L0.75 8" stroke="white" strokeOpacity="0.9" strokeWidth="1.05"
+                  strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
     )
 }

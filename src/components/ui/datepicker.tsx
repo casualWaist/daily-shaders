@@ -51,7 +51,7 @@ export default function DatePicker() {
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 pointer-events-auto">
                 {/* @ts-ignore */}
-                <Calendar mode="single" selected={date} onSelect={setDate} initialFocus/>
+                <Calendar mode="single" selected={date} month={date} onSelect={setDate} initialFocus/>
             </PopoverContent>
         </Popover>
     )
