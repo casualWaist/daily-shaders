@@ -27,6 +27,7 @@ export default function DatePicker() {
     const [date, setDate] = React.useState<Date>(
         goodDay ? new Date(yearInt, monthInt - 1, dayInt) : new Date()
     )
+    const [monthy, setMonthy] = React.useState<Date>(date)
     const router = useRouter()
 
     React.useEffect(() => {
@@ -51,7 +52,7 @@ export default function DatePicker() {
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 pointer-events-auto">
                 {/* @ts-ignore */}
-                <Calendar mode="single" selected={date} month={date} onSelect={setDate} initialFocus/>
+                <Calendar mode="single" selected={date} month={monthy} onSelect={setDate} onMonthChange={setMonthy} initialFocus/>
             </PopoverContent>
         </Popover>
     )
